@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<!--xml文件版本号，编码格式，依赖的标签库-->
+
+<mapper namespace="com.fh.dao.TypeDao"><!--框架规定标签 namespace:实现与数据库交互的接口-->
+
+    <!--<cache eviction="FIFO" flushInterval="60000" size="512" readOnly="false"/>-->
+
+    <select id="queryTypeList" resultType="com.fh.beans.vo.TypeBeanVo">
+       /* SELECT  id,pid,typeName ,null brandLogo from t_shop_type
+          UNION all
+      select bid id,bid pid, bname typeName,brandLogo from t_shop_brand*/
+
+      SELECT  id,pid,typeName ,null brandLogo from t_shop_type
+      UNION all
+      SELECT bid id, bt.typeId pid ,sb.bname typeName ,sb.brandLogo brandLogo from t_shop_brand sb LEFT JOIN t_brand_type bt on sb.bid=bt.brandId
+
+
+    </select>
+
+</mapper>

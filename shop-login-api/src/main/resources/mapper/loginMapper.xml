@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<!--xml文件版本号，编码格式，依赖的标签库-->
+
+<mapper namespace="com.fh.dao.LoginDao"><!--框架规定标签 namespace:实现与数据库交互的接口-->
+    <cache eviction="FIFO" flushInterval="60000" size="512" readOnly="false"/>
+
+    <select id="getUserByPhone" parameterType="string" resultType="com.fh.beans.po.UserBean">
+        SELECT * from t_shop_user where telnum=#{phonenum}
+    </select>
+
+    <select id="getUserByAccount" parameterType="string" resultType="com.fh.beans.po.UserBean">
+        SELECT * from t_shop_user where account=#{account}
+    </select>
+
+</mapper>

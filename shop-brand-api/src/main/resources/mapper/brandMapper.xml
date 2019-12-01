@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<!--xml文件版本号，编码格式，依赖的标签库-->
+
+<mapper namespace="com.fh.dao.BrandDao"><!--框架规定标签 namespace:实现与数据库交互的接口-->
+  <!--  <cache eviction="FIFO" flushInterval="60000" size="512" readOnly="false"/>-->
+    <!--通过该类型id查询该类型对应的品牌-->
+    <select id="queryBrandList" parameterType="string" resultType="com.fh.beans.vo.BrandBeanVo">
+        select bid,bname ,brandLogo from t_shop_brand where bid in
+       (  select brandId from t_brand_type where typeId in(
+          select id from t_shop_type where pid =#{typeId}
+		)  )
+   </select>
+
+</mapper>

@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>后台登录</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <!-- load css -->
+    <link rel="stylesheet" type="text/css" href="commons/layui/css/layui.css" media="all">
+    <link rel="stylesheet" type="text/css" href="commons/022/css/login.css" media="all">
+    <script type="text/javascript" src="commons/jquery-4.3.1.js"></script>
+    <script type="text/javascript" src="commons/layui/layui.js"></script>
+
+</head>
+<style type="text/css">
+    /*注册按钮*/
+    .register_btn{
+        width:20%;
+        height:21px;
+        border:none;
+        position: relative;
+        left: 20%;
+        font-size:16px;
+        background:green;
+        color:#f8f8f8;
+        /*cursor: pointer;*/
+    }
+
+    /*登录按钮*/
+    .login_btu{
+        width:50%;
+        height:42px;
+        border:none;
+        position: relative;
+        left: 50%;
+        font-size:16px;
+        background:#FF5722;
+        color:#f8f8f8;
+    }
+    .color{
+        width:50%;
+        height:42px;
+        border:none;
+        position: relative;
+        left: 50%;
+        font-size:16px;
+        background: #7a869d;
+        color:#f8f8f8;
+    }
+</style>
+<body>
+<div class="layui-canvs"></div>
+<div class="layui-layout layui-layout-login">
+    <h1>
+        <strong>系统管理后台<input type="button" value="注册用户" class="register_btn"/></strong>
+        <a href="#" onclick="accesslogin()" style="font-size: 10px">账号登陆</a>
+        <a href="#" onclick="phoneLogin()" style="font-size: 10px">手机号登陆</a>
+    </h1>
+
+    <div class="layui-user-icon larry-login access_login">
+        <input type="text" id="account" placeholder="账号" class="login_txtbx"/>
+    </div>
+    <div class="layui-pwd-icon larry-login access_login">
+        <input type="password" id="pwd" placeholder="密码" class="login_txtbx"/>
+    </div>
+    <div class="layui-submit larry-login access_login">
+        <input type="button" onclick="accessloginBtu()" value="立即登陆" class="login_btu" />
+    </div>
+
+    <div class="layui-user-icon larry-login phone_login">
+        <input type="text" id="phonenum" placeholder="手机号" class="login_txtbx"/>
+    </div>
+
+    <div class="layui-val-icon larry-login phone_login">
+        <div class="layui-code-box">
+            <input type="text" id="code" placeholder="验证码" class="login_txtbx">
+        </div>
+    </div>
+    <div class="layui-submit larry-login phone_login">
+        <input type="button" id="get_code" onclick="getCode()"  value="获取验证码"
+               style="width: 100%;height: 40px;background-color: green"/>
+    </div>
+    <div class="layui-submit larry-login phone_login">
+        <input type="button" onclick="loginmessage()" value="立即登陆" class="login_btu"/>
+    </div>
+
+
+    <div class="layui-login-text">
+        <p>小肥哥 版权所有</p>
+        <p>豫xxxxxx 字一号</p>
+    </div>
+</div>
+<script type="text/javascript" src="commons/layui/layui.all.js/"></script>
+<script type="text/javascript" src="commons/022/js/login.js"></script>
+<script type="text/javascript" src="commons/022/jsplug/jparticle.jquery.js"></script>
+<script type="text/javascript">
+
+   /* $.ajaxSetup({
+
+        //固定格式
+        contentType:"application/x-www-form-urlencoded;charset=utf-8",
+        headers:{
+            "Authorization":localStorage.getItem("token"),
+        },
+        complete:function(XMLHttpRequest,textStatus){
+            alert("ajax全局设置")
+        //获取状态码
+           /!* var code = XMLHttpRequest.getResponseHeader("sessionTimeOut");
+            if(code != null && code == "800"){
+                window.location.href="<%=request.getContextPath()%>/sessionTimeout.jsp";
+            }*!/
+        }
+    });
+*/
+    layui.use(['laydate', 'laypage', 'layer', 'table', 'carousel', 'upload', 'element', 'slider'], function () {
+        var laydate = layui.laydate //日期
+            , laypage = layui.laypage //分页
+            , layer = layui.layer //弹层
+            , table = layui.table //表格
+            , carousel = layui.carousel //轮播
+            , upload = layui.upload //上传
+            , element = layui.element //元素操作
+            , slider = layui.slider //滑块
+            ;
+    });
+
+    $(function () {
+        $(".phone_login").hide();
+        $(".layui-canvs").jParticle({
+            background: "#141414",
+            color: "#E6E6E6"
+        });
+        //登录链接测试，使用时可删除
+         /*$(".login_btu").click(function () {
+
+
+         });*/
+        $(".register_btn").click(function () {
+            window.location.href="/register.html";
+        })
+
+
+    });
+
+    /*账号密码登录*/
+    function accesslogin() {
+        $(".access_login").show();
+        $(".phone_login").hide();
+    }
+
+    /*手机登录*/
+    function phoneLogin() {
+        $(".access_login").hide();
+        $(".phone_login").show();
+    }
+
+    /*获取验证码*/
+    function getCode() {
+        var phonenum = $("#phonenum").val();
+        if(phonenum.length == 0 || phonenum == null){
+            layer.msg('请填写手机号');
+            return false;
+        }
+        $.ajax({
+            url: "http://localhost:8092/login/"+phonenum,
+            dataType: "json",
+            type: "get",
+            success: function (result) {
+                layer.msg("验证码发送成功");
+            }
+        })
+    }
+
+    /* 登录按钮置灰*/
+    function tempButn(){
+        $(".login_btu").click(function(){
+            $(this).attr("disabled","disabled");
+            $(this).attr("class","color");
+        })
+    }
+
+    /*手机号验证登录*/
+    function loginmessage() {
+        var code = $("#code").val();
+        var phonenum = $("#phonenum").val();
+        if (phonenum.length == 0 || phonenum == null) {
+            layer.msg("请填写手机号");
+            return false;
+        }
+        if (code.length == 0 || code == null) {
+            layer.msg("请填写验证码");
+            return false;
+        }
+        tempButn();
+        $.ajax({
+            url: "http://localhost:8092/login",
+            dataType: "json",
+            type: "post",
+            data: {
+                phonenum: phonenum,
+                code: code,
+            },
+            success: function (result) {
+                if (result.code == "2000") {
+                    layer.msg("登录成功");
+                    //layer.msg(result.data);
+                    sessionStorage.setItem("token",result.data);
+                    window.location.href="/index.html";
+                } else {
+                    layer.msg(result.message);
+                }
+            }
+        })
+    }
+
+    /*账号密码登录*/
+    function accessloginBtu() {
+        var account = $("#account").val();
+        var pwd = $("#pwd").val();
+        if (account.length == 0 || account == null) {
+            layer.msg("请填账号");
+            return false;
+        }
+        if (pwd.length == 0 || pwd == null) {
+            layer.msg("请填写密码");
+            return false;
+        }
+        tempButn();
+        $.ajax({
+            url: "http://localhost:8092/login/accesslogin",
+            dataType: "json",
+            type: "post",
+            data: {
+                account: account,
+                pwd: pwd
+            },
+            success: function (result) {
+                if (result.code == "2000") {
+                    window.location.href="/index.html";
+                } else {
+                    layer.msg(result.message);
+                }
+            }
+        })
+    }
+</script>
+</body>
+</html>

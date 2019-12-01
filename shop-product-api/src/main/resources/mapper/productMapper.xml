@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<!--xml文件版本号，编码格式，依赖的标签库-->
+
+<mapper namespace="com.fh.dao.ProductDao"><!--框架规定标签 namespace:实现与数据库交互的接口-->
+
+  <!--  <cache eviction="FIFO" flushInterval="60000" size="512" readOnly="false"/>-->
+
+    <!--datatable查询总条数-->
+    <select id="queryCount" resultType="long">
+          SELECT count(sp.id)
+        from t_shop_product sp
+        <if test="typeId != null and typeId != '' ">
+            where  sp.brandId in (
+            select id from t_shop_type where pid=#{typeId}
+            )
+        </if>
+
+    </select>
+
+    <!--datatable查询-->
+    <!--  <select id="queryShopList" resultType="com.fh.beans.vo.ProductBeanVo">
+          SELECT sp.id,sp.name,st.typeName brandName,sb.bname
+          shopBrandName,sp.subtitle,sp.mainImg,sp.subImgs,sp.detail,sp.price,sp.stock,sp.status,sp.createTime,sp.updateTime
+          from t_shop_product sp
+          LEFT JOIN t_shop_type st
+          on sp.brandId=st.id
+          LEFT JOIN t_shop_brand sb on sp.shopBrand=sb.bid
+          limit #{page.start},#{page.length}
+      </select>-->
+
+    <!--通过类型id、typeId  查询该类型下面的所有品牌的商品-->
+    <select id="queryShopListByTypeId" resultType="com.fh.beans.vo.ProductBeanVo">
+        SELECT
+          sp.id,sp.name,st.typeName brandName,sb.bname shopBrandName,sp.subtitle,sp.mainImg,sp.subImgs,sp.detail,sp.price,sp.stock,sp.status,sp.createTime,sp.updateTime
+        from t_shop_product sp
+        LEFT JOIN t_shop_type st
+        on sp.brandId =st.id
+        LEFT JOIN t_shop_brand sb on sp.shopBrand=sb.bid
+        <if test="typeId != null and typeId != '' ">
+            where  sp.brandId in (
+            select id from t_shop_type where pid=#{typeId}
+            )
+        </if>
+        limit #{page.start},#{page.length}
+    </select>
+
+
+    <select id="queryListCount" resultType="long">
+        select count(id) from t_shop_product where brandId =#{brandId}
+
+    </select>
+    <select id="queryListBytypeIdAndbrandId" resultType="com.fh.beans.vo.ProductBeanVo">
+        SELECT
+        sp.id,sp.name,st.typeName brandName,sb.bname shopBrandName,sp.subtitle,sp.mainImg,sp.subImgs,sp.detail,sp.price,sp.stock,sp.status,sp.createTime,sp.updateTime
+         from t_shop_product sp
+        LEFT JOIN t_shop_type st
+        on sp.brandId =st.id
+        LEFT JOIN t_shop_brand sb on sp.shopBrand=sb.bid where 1=1
+        <if test="brandId != null and brandId != '' ">
+            and sp.brandId = #{brandId}
+        </if>
+        <if test="brandId == null and  brandId != '' ">
+            and sp.brandId in (select id from t_shop_type where pid=#{typeId})
+        </if>
+        <if test="value != null and value != '' ">
+            and sp.shopBrand=#{value}
+        </if>
+        limit #{page.start},#{page.length}
+    </select>
+
+
+</mapper>
