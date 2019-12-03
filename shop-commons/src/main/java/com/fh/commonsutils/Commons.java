@@ -1,6 +1,11 @@
 package com.fh.commonsutils;
 
+/**
+ * 流程审批盐
+ */
 public interface Commons {
+
+    /*流程审批使用*/
     String BOOS = "boos";//老板
     String MANAGER_ALL = "allManager";//总经理
     String MANAGER_HEAD = "managerHead";//部门经理

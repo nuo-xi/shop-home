@@ -1,5 +1,8 @@
 package com.fh.httpConnectUtils;
 
+/**
+ * 分布式接口
+ */
 public interface ApiAddr {
 
     /*商品接口*/

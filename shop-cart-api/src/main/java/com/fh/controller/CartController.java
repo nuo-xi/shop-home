@@ -19,7 +19,7 @@ public class CartController {
     /**
      * 添加购物车
      *
-     * @param shopId
+     * @param shopId  商品id
      * @param request
      * @return
      */
@@ -31,6 +31,12 @@ public class CartController {
         return cartService.addCart(telnum,shopId);
     }
 
+    /**
+     * 获取购物车的商品数量
+     *
+     * @param request
+     * @return
+     */
     @PostMapping
     @TokenAnnotation
     public ResponseServer queryCartById(HttpServletRequest request){

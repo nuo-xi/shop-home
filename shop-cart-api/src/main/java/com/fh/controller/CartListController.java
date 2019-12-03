@@ -18,7 +18,7 @@ public class CartListController {
     private CartService cartService;
 
     /**
-     * 用户打开购物车
+     * 用户点击查看我的购物车
      *
      * @return
      */
@@ -37,6 +37,7 @@ public class CartListController {
     @PostMapping
     @TokenAnnotation
     public ResponseServer queryMyCart(HttpServletRequest request) {
+        /*从aop环绕同志中获取用户电话号码*/
         String telnum = (String) request.getAttribute("phonenum");
         Map<String, Object> cartMap = cartService.queryCartList(telnum);
         return ResponseServer.success(cartMap);
@@ -46,7 +47,7 @@ public class CartListController {
      * 用户操作购物车
      *
      * @param shopId  商品id
-     * @param type  操作的类型  2,选中或者取消选中
+     * @param type  操作的类型
      * @param request
      * @return
      */

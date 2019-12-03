@@ -42,7 +42,7 @@
                                                                                    class="piece_num">0</strong>件
             </div>
             <div class="totalMoney">共计: <strong class="total_text">0.00</strong></div>
-            <div class="calBtn"><a href="javascript:void(0);" class="">结算</a></div>
+            <div class="calBtn"><a href="javascript:void(0);" onclick="accountsCart()" class="">结算</a></div>
         </div>
     </div>
 </section>
@@ -107,21 +107,24 @@
                             str += '<label class=""></label>';
                         }
                         str += '</li>';
-                        str += '  <li class="list_con">\n' +
+                        str += '  <li class="list_con">' +
                             '                    <div class="list_img"><a href="javascript:;"><img src="' + result[i].shopImg + '" alt=""></a></div>\n' +
                             '                    <div class="list_text"><a href="javascript:;"><span >' + result[i].shopName + '</span></a></div>\n' +
                             '                </li>';
-                        str += '  <li class="list_price">\n' +
-                            '                    <p class="price">￥<span></span>' + result[i].shopPrice + '</p>\n' +
-                            '                </li>';
+                        str += '  <li class="list_price">' +
+                            '                    <p class="price">￥<span></span>' + result[i].shopPrice + '</p>'+
+                            '</li>';
 
-                        str += '<li class="list_amount">\n' +
-                            '                    <div class="amount_box">\n' +
+                        str += '<li class="list_amount">' +
+                            '                    <div class="amount_box">' +
                             '                        <a href="javascript:void(0);" onclick="subtractCartNum(' + result[i].shopId + ')" class="reduce reSty">-</a>\n' +
                             '                        <input type="text" onchange="changeShopNum(' + result[i].shopId + ',this)" class="sum" value="' + result[i].count + '">\n' +
                             '                        <a href="javascript:void(0);" onclick="addCartNum(' + result[i].shopId + ')"  class="plus">+</a>\n' +
-                            '                    </div>\n' +
-                            '                </li>';
+                            '                    </div>';
+                        if(result[i].isStatus == 0){
+                            str += '<p style="color: red">无货</p>';
+                        }
+                        str +=  '                </li>';
                         str += '  <li class="list_sum">\n' +
                             '                    <p class="sum_price">￥<span >' + result[i].subTotal + '</span></p>\n' +
                             '                </li>';
@@ -246,6 +249,21 @@
             }
         })
 
+    }
+
+
+    /*结算购物车*/
+    function accountsCart(){
+        $.ajax({
+            url: "http://localhost:8094/cartList",
+            dataType: "json",
+            type: "get",
+            success: function (result) {
+                if(result.code == 2000){
+                    window.open("/orderInfo.html","_blank");
+                }
+            }
+        })
     }
 
 </script>

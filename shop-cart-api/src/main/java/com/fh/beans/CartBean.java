@@ -22,6 +22,8 @@ public class CartBean implements Serializable {
 
     private BigDecimal subTotal;// 小计
 
+    private Integer  isStatus ;//1有货,0无货
 
+    private String detail;//商品描述
 
 }

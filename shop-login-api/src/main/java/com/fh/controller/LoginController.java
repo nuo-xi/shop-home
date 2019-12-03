@@ -2,6 +2,7 @@ package com.fh.controller;
 
 import com.fh.JWT.JwtUtils;
 import com.fh.beans.po.UserBean;
+import com.fh.commonsutils.CommonsSalt;
 import com.fh.enumUtil.EnumService;
 import com.fh.enumUtil.ResponseServer;
 import com.fh.service.LoginServcie;
@@ -28,8 +29,8 @@ public class LoginController {
     /**
      * 短信登录
      *
-     * @param phonenum
-     * @param code
+     * @param phonenum  手机号
+     * @param code   验证码
      * @param session
      * @return
      */
@@ -70,8 +71,8 @@ public class LoginController {
     /**
      * 账户密码登录
      *
-     * @param account
-     * @param pwd
+     * @param account 账号
+     * @param pwd  密码
      * @return
      */
     @RequestMapping("/accesslogin")
@@ -96,7 +97,7 @@ public class LoginController {
     /**
      * 发送验证码
      *
-     * @param phonenum
+     * @param phonenum  手机号
      * @return
      */
     @GetMapping("/{phonenum}")
@@ -121,7 +122,7 @@ public class LoginController {
 //        }
 
         String code = "123456";
-        redisTemplate.opsForValue().set("user_" + phonenum, code, 300, TimeUnit.SECONDS);
+        redisTemplate.opsForValue().set(CommonsSalt.redis_salt_code + phonenum, code, 300, TimeUnit.SECONDS);
 
         return ResponseServer.success(code);
     }

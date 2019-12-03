@@ -30,8 +30,11 @@ public class HttpConnection {
     /*初始化连接的客户端*/
     private static CloseableHttpClient httpClient = null;
 
+    /**
+     * static静态代码块类加载时只执行一遍
+     */
     static {
-    /*static静态代码块 创建http连接 类加载时只执行一遍
+    /* 创建http连接
     设置连接超时  目的是不回因为接口调不通造成大量的线程挂起，最总造成堵塞，tomcat直接崩溃。
     * 减少客户端创建的频率，节省服务器资源
     * setConnectionRequestTimeout:设置与服务器连接的超时时间
@@ -87,7 +90,10 @@ public class HttpConnection {
         return getResult(httpPut);
     }
 
-    /*处理请求参数*/
+    /**
+     * 处理请求参数
+     *
+     * */
     public static UrlEncodedFormEntity dispostParameter(Map<String, String> parameterMap) throws UnsupportedEncodingException {
         List<NameValuePair> list = new ArrayList<NameValuePair>();
         parameterMap.entrySet().forEach(entry -> {

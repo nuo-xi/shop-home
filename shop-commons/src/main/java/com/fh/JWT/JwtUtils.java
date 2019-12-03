@@ -9,6 +9,9 @@ import sun.misc.BASE64Encoder;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * jwt技术
+ */
 public class JwtUtils {
 
     /**
@@ -19,20 +22,30 @@ public class JwtUtils {
      * @return
      */
     public static String createToken(Map<String, Object> paraMap) {
-        /*设置header*/
+        /**
+         * 设置header
+         * */
         Map<String, Object> headerMap = new HashMap<>();
         headerMap.put("alg", "HS256");
         headerMap.put("typ", "JWT");
 
-        /*设置负载*/
+        /**
+         * 设置负载
+         * */
         Map<String, Object> payload = new HashMap<>();
-        /*设置加密参数*/
+        /**
+         * 设置加密参数
+         * */
         payload.putAll(paraMap);
         Long iat = System.currentTimeMillis();
-        //设置jwt的失效时间
+        /**
+         * 设置jwt的失效时间
+         */
         payload.put("exp", iat+1800000l);
         payload.put("iat", iat);
-        /*生成token值*/
+        /**
+         * 生成token值
+         * */
         String token = Jwts.builder()
                 .setHeader(headerMap)
                 .setPayload(JSON.toJSONString(payload))
@@ -41,7 +54,7 @@ public class JwtUtils {
         return token;
     }
 
-    /**
+    /**加密 密钥
      * @param userCodeKey
      * @return
      */

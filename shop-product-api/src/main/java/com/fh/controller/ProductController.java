@@ -45,9 +45,8 @@ public class ProductController {
     public PageBean<ProductBeanVo> queryListBytypeIdAndbrandId(String typeId,
                                                                String brandId,
                                                                String value,
-                                                               PageBean<ProductBeanVo> page
-    ) {
-        productService.queryListBytypeIdAndbrandId(page,typeId,brandId,value);
+                                                               PageBean<ProductBeanVo> page) {
+        productService.queryListBytypeIdAndbrandId(page, typeId, brandId, value);
         return page;
     }
 }

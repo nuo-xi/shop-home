@@ -27,12 +27,9 @@ public class CartServiceImpl implements CartService {
         String usercart = (String) redisTemplate.opsForValue().get("usercart_" + telnum);
 
         /*调用接口 取数据*/
-        String url = ApiAddr.productAddr +"/" + shopId;
+        String url = ApiAddr.productAddr + "/" + shopId;
         String result = HttpConnection.doGet(url);
-        /*把String类型转换成  JSONObject 方便取数据  */
-        JSONObject parse = (JSONObject) JSON.parse(result);
-        Object data = parse.get("data");
-        JSONObject parse1 = (JSONObject) JSON.parse(data.toString());
+        JSONObject parse1 = getShop(result);
 
         //数据加入购物车实体bean中
         CartBean cartBean = new CartBean();
@@ -40,13 +37,22 @@ public class CartServiceImpl implements CartService {
         cartBean.setShopName(parse1.getString("name"));
         cartBean.setShopImg(parse1.getString("mainImg"));
         cartBean.setShopPrice(parse1.getBigDecimal("price"));
+        cartBean.setDetail(parse1.getString("detail"));
+
+        String stock = parse1.getString("stock");
 
         //判断商品是否存在购物车
         if (redisTemplate.opsForHash().hasKey(usercart, shopId)) {
             CartBean cart = (CartBean) redisTemplate.opsForHash().get(usercart, shopId);
             cartBean.setCount(cart.getCount() + 1);
+            if (cartBean.getCount() <= Integer.parseInt(stock)) {
+                cartBean.setIsStatus(1);
+            } else {
+                cartBean.setIsStatus(0);
+            }
         } else {
             cartBean.setCount(1);
+            cartBean.setIsStatus(1);
         }
         /*新增的默认被选中*/
         cartBean.setIsCheck(true);
@@ -96,11 +102,20 @@ public class CartServiceImpl implements CartService {
         int count = 0;
         BigDecimal sumTotal = BigDecimal.valueOf(0.00);
         /*计算总价*/
-        if(values.size() > 0){
+        if (values.size() > 0) {
             for (CartBean cart : values) {
+                String stock = getStock(cart.getShopId().toString());
+                /*选中并且货物充足*/
                 if (cart.getIsCheck()) {
-                    sumTotal = sumTotal.add(cart.getSubTotal());
-                    count += cart.getCount();
+                    if (cart.getCount() <= Integer.parseInt(stock)) {
+                        sumTotal = sumTotal.add(cart.getSubTotal());
+                        count += cart.getCount();
+                        cart.setIsStatus(1);
+                        cart.setIsCheck(true);
+                    }else{
+                        cart.setIsCheck(false);
+                        cart.setIsStatus(0);
+                    }
                 }
             }
         }
@@ -122,17 +137,17 @@ public class CartServiceImpl implements CartService {
             /*查询所有购物车中的数据*/
             List<CartBean> values = redisTemplate.opsForHash().values(usercart);
             /*
-            * type状态，码
-            * 1:需要全选
-            * 2:全不选
-            * */
-            if(1 == type){
+             * type状态，码
+             * 1:需要全选
+             * 2:全不选
+             * */
+            if (1 == type) {
                 for (CartBean cart : values) {
                     cart.setIsCheck(true);
                     redisTemplate.opsForHash().put(usercart, String.valueOf(cart.getShopId()), cart);
                 }
                 return ResponseServer.success();
-            }else  {
+            } else {
                 for (CartBean cart : values) {
                     cart.setIsCheck(false);
                     redisTemplate.opsForHash().put(usercart, String.valueOf(cart.getShopId()), cart);
@@ -165,18 +180,14 @@ public class CartServiceImpl implements CartService {
             case 3: {
 
                 /* 通过商品id去库里面查 库存*/
-                String url = ApiAddr.productAddr +"/"  + shopId;
-                String result = HttpConnection.doGet(url);
-                JSONObject parse = (JSONObject) JSON.parse(result);
-                Object data = parse.get("data");
-                JSONObject parse1 = (JSONObject) JSON.parse(data.toString());
-
-                if(cartBean.getCount().equals(parse1.getInteger("count")) ){
-                    cartBean.setCount(parse1.getInteger("count"));
-                }else{
-                    cartBean.setCount(cartBean.getCount() + 1);
+                String stock = getStock(shopId);
+                cartBean.setCount(cartBean.getCount() + 1);
+                if (cartBean.getCount() > Integer.valueOf(stock)) {
+                    cartBean.setIsStatus(0);
+                    cartBean.setIsCheck(false);
+                } else {
+                    cartBean.setIsStatus(1);
                 }
-
                 BigDecimal subTotal = getSubTotal(cartBean);
                 cartBean.setSubTotal(subTotal);
                 redisTemplate.opsForHash().put(usercart, shopId, cartBean);
@@ -189,7 +200,17 @@ public class CartServiceImpl implements CartService {
                 if (count == 1) {
                     cartBean.setCount(1);
                 } else {
+                    /* 通过商品id去库里面查 库存*/
+                    String stock = getStock(shopId);
                     cartBean.setCount(cartBean.getCount() - 1);
+                    if (cartBean.getCount() > Integer.parseInt(stock)) {
+                        cartBean.setIsCheck(false);
+                        cartBean.setIsStatus(0);
+                    } else {
+                        cartBean.setIsCheck(true);
+                        cartBean.setIsStatus(1);
+                    }
+
                 }
                 BigDecimal subTotal = getSubTotal(cartBean);
                 cartBean.setSubTotal(subTotal);
@@ -214,15 +235,15 @@ public class CartServiceImpl implements CartService {
         String usercart = (String) redisTemplate.opsForValue().get("usercart_" + telnum);
         CartBean cartBean = (CartBean) redisTemplate.opsForHash().get(usercart, shopId);
         /* 通过商品id去库里面查 库存*/
-        /*
-        String url = "http://localhost:8090/httpShops/" + shopId;
-        String result = HttpConnection.doGet(url);
-        JSONObject parse = (JSONObject) JSON.parse(result);
-        Object data = parse.get("data");
-        JSONObject parse1 = (JSONObject) JSON.parse(data.toString());
-        Integer id = parse1.getInteger("id");
-        */
 
+        String stock = getStock(shopId);
+        if (Integer.parseInt(sum) > Integer.valueOf(stock)) {
+            cartBean.setIsStatus(0);
+            cartBean.setIsCheck(false);
+        } else {
+            cartBean.setIsStatus(1);
+            cartBean.setIsCheck(true);
+        }
         cartBean.setCount(Integer.valueOf(sum));
         BigDecimal subTotal = getSubTotal(cartBean);
         cartBean.setSubTotal(subTotal);
@@ -231,10 +252,47 @@ public class CartServiceImpl implements CartService {
         return ResponseServer.success();
     }
 
-    public static BigDecimal getSubTotal(CartBean cartBean){
+    /**
+     * 计算小计
+     *
+     * @param cartBean
+     * @return
+     */
+    public static BigDecimal getSubTotal(CartBean cartBean) {
+        /*  BigDecimal 指定精度 */
         BigDecimal bigDecimal = BigDecimal.valueOf(0.00);
         BigDecimal bigDecimal1 = new BigDecimal(cartBean.getCount());
         bigDecimal = cartBean.getShopPrice().multiply(bigDecimal1);
         return bigDecimal;
+    }
+
+    /**
+     * String --> JSONObject
+     *
+     * @param result string
+     * @return
+     */
+    private static JSONObject getShop(String result) {
+        /* String --> JSONObject */
+        JSONObject parse = (JSONObject) JSON.parse(result);
+        Object data = parse.get("data");
+        JSONObject parse1 = (JSONObject) JSON.parse(data.toString());
+        return parse1;
+    }
+
+    /**
+     * 获取指定商品的库存
+     *
+     * @param shopId 商品的id
+     * @return
+     */
+    private static String getStock(String shopId) {
+        /*调用接口获取数据*/
+        String url = ApiAddr.productAddr + "/" + shopId;
+        String result = HttpConnection.doGet(url);
+        /*String --> JSONObject*/
+        JSONObject shop = getShop(result);
+        String stock = shop.getString("stock");
+        return stock;
     }
 }

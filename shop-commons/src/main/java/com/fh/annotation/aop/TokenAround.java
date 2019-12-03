@@ -46,6 +46,7 @@ public class TokenAround {
 
         /*取出解析数据*/
         Claims claims = (Claims)responseServer.getData();
+
         /*取出电话号码  放到request中  （业务需求） */
         String  phonenum = (String) claims.get("phonenum");
         request.setAttribute("phonenum",phonenum);

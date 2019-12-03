@@ -12,6 +12,12 @@ public class HttpShopController {
     @Autowired
     private ProductService productService;
 
+    /**
+     * 通过商品id获取商品的信息
+     *
+     * @param shopId
+     * @return
+     */
     @GetMapping("/{shopId}")
     public ResponseServer getShopById(@PathVariable("shopId") Integer shopId ){
         return productService.getShopById(shopId);
